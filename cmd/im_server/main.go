@@ -8,6 +8,7 @@ import (
 	"github.com/glide-im/im-service/internal/config"
 	"github.com/glide-im/im-service/internal/im_server"
 	"github.com/glide-im/im-service/internal/message_store_db"
+	"github.com/glide-im/im-service/pkg/rpc"
 )
 
 func main() {
@@ -36,8 +37,21 @@ func main() {
 		Subscription: group_subscription.NewSubscription(store),
 	}
 
-	err = bootstrap.Bootstrap(&options)
+	go func() {
+		err = bootstrap.Bootstrap(&options)
 
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	rpcOpts := rpc.ServerOptions{
+		Name:    config.IMService.Name,
+		Network: config.IMService.Network,
+		Addr:    config.IMService.Addr,
+		Port:    config.IMService.Port,
+	}
+	err = im_server.RunRpcServer(&rpcOpts, gateway)
 	if err != nil {
 		panic(err)
 	}
