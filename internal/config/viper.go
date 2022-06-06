@@ -71,4 +71,14 @@ func MustLoad() {
 	MySql = c.MySql
 	WsServer = c.WsServer
 	IMService = c.IMRpcServer
+
+	if c.MySql == nil {
+		panic("mysql config is nil")
+	}
+	if c.WsServer == nil {
+		panic("ws server config is nil")
+	}
+	if c.IMRpcServer == nil {
+		panic("im rpc server config is nil")
+	}
 }

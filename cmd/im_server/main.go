@@ -9,6 +9,7 @@ import (
 	"github.com/glide-im/im-service/internal/im_server"
 	"github.com/glide-im/im-service/internal/message_store_db"
 	"github.com/glide-im/im-service/pkg/rpc"
+	"log"
 )
 
 func main() {
@@ -38,6 +39,7 @@ func main() {
 	}
 
 	go func() {
+		log.Println("websocket listening on ", config.WsServer.Addr, config.WsServer.Port)
 		err = bootstrap.Bootstrap(&options)
 
 		if err != nil {
@@ -51,6 +53,7 @@ func main() {
 		Addr:    config.IMService.Addr,
 		Port:    config.IMService.Port,
 	}
+	log.Println("rpc listening on ", rpcOpts.Addr, rpcOpts.Port)
 	err = im_server.RunRpcServer(&rpcOpts, gateway)
 	if err != nil {
 		panic(err)

@@ -15,13 +15,17 @@ type ChatMessageStore struct {
 }
 
 func New(conf *config.MySqlConf) (*ChatMessageStore, error) {
-	db := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", conf.Username, conf.Password, conf.Host, conf.Port, conf.Db)
-	open, err := sql.Open("mysql", db)
+	mysqlUrl := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", conf.Username, conf.Password, conf.Host, conf.Port, conf.Db)
+	db, err := sql.Open("mysql", mysqlUrl)
+	if err != nil {
+		return nil, err
+	}
+	err = db.Ping()
 	if err != nil {
 		return nil, err
 	}
 	m := &ChatMessageStore{
-		db: open,
+		db: db,
 	}
 	return m, nil
 }
