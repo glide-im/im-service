@@ -16,6 +16,15 @@ const (
 	errRpcInvocation = "rpc invocation error: "
 )
 
+type IMServiceError struct {
+	Code    int32
+	Message string
+}
+
+func (e *IMServiceError) Error() string {
+	return fmt.Sprintf("IM Service Error: %d, %s", e.Code, e.Message)
+}
+
 // IsRpcInvocationError
 // Rpc invocation failed errors are returned by the rpc client when the rpc call fails.
 func IsRpcInvocationError(err error) bool {
@@ -97,9 +106,16 @@ func (i *IMServiceClient) EnqueueMessage(id gate.ID, message *messages.GlideMess
 	return getResponseError(&response)
 }
 
+func (i *IMServiceClient) Close() error {
+	return i.rpc.cli.Close()
+}
+
 func getResponseError(response *proto.Response) error {
 	if proto.Response_ResponseCode(response.GetCode()) != proto.Response_OK {
-		return fmt.Errorf("%d: %s", response.GetCode(), response.GetMsg())
+		return &IMServiceError{
+			Code:    response.GetCode(),
+			Message: response.GetMsg(),
+		}
 	}
 	return nil
 }
