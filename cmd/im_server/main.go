@@ -31,6 +31,7 @@ func main() {
 		panic(err)
 	}
 
+	handler.SetGate(gateway)
 	store := &message_store_db.SubscriptionMessageStore{}
 	options := bootstrap.Options{
 		Messaging:    handler,
