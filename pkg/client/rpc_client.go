@@ -2,8 +2,8 @@ package client
 
 import (
 	"context"
+	"github.com/glide-im/im-service/internal/rpc"
 	"github.com/glide-im/im-service/pkg/proto"
-	"github.com/glide-im/im-service/pkg/rpc"
 	"github.com/glide-im/im-service/pkg/server"
 )
 

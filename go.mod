@@ -6,7 +6,7 @@ require (
 	github.com/glide-im/glide v1.1.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
-	github.com/gogo/protobuf v1.3.2
+	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
 	github.com/rpcxio/rpcx-etcd v0.2.0
 	github.com/smallnest/rpcx v1.7.4
 	github.com/spf13/viper v1.11.0
@@ -37,6 +37,7 @@ require (
 	github.com/go-ping/ping v0.0.0-20211130115550-779d1e919534 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -80,7 +81,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.8 // indirect
 	github.com/philhofer/fwd v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rpcxio/libkv v0.5.1-0.20210420120011-1fceaedca8a5 // indirect
 	github.com/rs/cors v1.8.2 // indirect
 	github.com/rubyist/circuitbreaker v2.2.1+incompatible // indirect

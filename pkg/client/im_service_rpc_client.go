@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/messages"
+	"github.com/glide-im/im-service/internal/rpc"
 	"github.com/glide-im/im-service/pkg/proto"
-	"github.com/glide-im/im-service/pkg/rpc"
 	"strings"
 )
 

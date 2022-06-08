@@ -8,7 +8,7 @@ import (
 	"github.com/glide-im/im-service/internal/config"
 	"github.com/glide-im/im-service/internal/im_server"
 	"github.com/glide-im/im-service/internal/message_store_db"
-	"github.com/glide-im/im-service/pkg/rpc"
+	"github.com/glide-im/im-service/internal/rpc"
 	"log"
 )
 

@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/messages"
+	"github.com/glide-im/im-service/internal/rpc"
 	"github.com/glide-im/im-service/pkg/client"
-	"github.com/glide-im/im-service/pkg/rpc"
 )
 
 func main() {
