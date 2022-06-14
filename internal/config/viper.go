@@ -3,10 +3,15 @@ package config
 import "github.com/spf13/viper"
 
 var (
+	Common    *CommonConf
 	MySql     *MySqlConf
 	WsServer  *WsServerConf
 	IMService *IMRpcServerConf
 )
+
+type CommonConf struct {
+	StoreMessageHistory bool
+}
 
 type WsServerConf struct {
 	ID        string
@@ -62,6 +67,7 @@ func MustLoad() {
 		Redis       *RedisConf
 		WsServer    *WsServerConf
 		IMRpcServer *IMRpcServerConf
+		CommonConf  *CommonConf
 	}{}
 
 	err = viper.Unmarshal(&c)
@@ -71,7 +77,11 @@ func MustLoad() {
 	MySql = c.MySql
 	WsServer = c.WsServer
 	IMService = c.IMRpcServer
+	Common = c.CommonConf
 
+	if Common == nil {
+		panic("CommonConf is nil")
+	}
 	if c.MySql == nil {
 		panic("mysql config is nil")
 	}

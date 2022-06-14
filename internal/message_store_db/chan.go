@@ -14,3 +14,14 @@ func (c *SubscriptionMessageStore) StoreMessage(ch subscription.ChanID, msg subs
 func (c *SubscriptionMessageStore) StoreSeq(ch subscription.ChanID, seq int64) error {
 	return nil
 }
+
+type IdleSubscriptionStore struct {
+}
+
+func (i *IdleSubscriptionStore) StoreMessage(ch subscription.ChanID, msg subscription.Message) error {
+	return nil
+}
+
+func (i *IdleSubscriptionStore) StoreSeq(ch subscription.ChanID, seq int64) error {
+	return nil
+}

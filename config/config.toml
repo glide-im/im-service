@@ -1,3 +1,6 @@
+[CommonConf]
+StoreMessageHistory = false
+
 [WsServer]
 Addr = "0.0.0.0"
 Port = 8080

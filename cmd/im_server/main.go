@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/glide-im/glide/pkg/auth/jwt_auth"
 	"github.com/glide-im/glide/pkg/bootstrap"
+	"github.com/glide-im/glide/pkg/logger"
 	"github.com/glide-im/glide/pkg/messaging/message_handler"
+	store2 "github.com/glide-im/glide/pkg/store"
 	"github.com/glide-im/glide/pkg/subscription/group_subscription"
 	"github.com/glide-im/im-service/internal/config"
 	"github.com/glide-im/im-service/internal/im_server"
@@ -22,21 +24,30 @@ func main() {
 	}
 
 	auth := jwt_auth.NewAuthorizeImpl(config.WsServer.JwtSecret)
-	dbStore, err := message_store_db.New(config.MySql)
-	if err != nil {
-		panic(err)
+
+	var cStore store2.MessageStore = &message_store_db.IdleChatMessageStore{}
+	var sStore store2.SubscriptionStore = &message_store_db.IdleSubscriptionStore{}
+
+	if config.Common.StoreMessageHistory {
+		dbStore, err := message_store_db.New(config.MySql)
+		if err != nil {
+			panic(err)
+		}
+		cStore = dbStore
+		sStore = &message_store_db.SubscriptionMessageStore{}
+	} else {
+		logger.W("Common.StoreMessageHistory is false, message history will not be stored")
 	}
-	handler, err := message_handler.NewHandler(dbStore, auth)
+
+	handler, err := message_handler.NewHandler(cStore, auth)
 	if err != nil {
 		panic(err)
 	}
 
-	handler.SetGate(gateway)
-	store := &message_store_db.SubscriptionMessageStore{}
 	options := bootstrap.Options{
 		Messaging:    handler,
 		Gate:         gateway,
-		Subscription: group_subscription.NewSubscription(store),
+		Subscription: group_subscription.NewSubscription(sStore),
 	}
 
 	go func() {
