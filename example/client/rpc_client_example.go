@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/messages"
-	"github.com/glide-im/im-service/internal/rpc"
+	"github.com/glide-im/glide/pkg/rpc"
 	"github.com/glide-im/im-service/pkg/client"
 )
 
@@ -22,7 +22,7 @@ func RpcClientExample() {
 	if err != nil {
 		panic(err)
 	}
-	err = cli.EnqueueMessage(gate.NewID2(1), messages.NewEmptyMessage())
+	err = cli.EnqueueMessage(gate.NewID2("1"), messages.NewEmptyMessage())
 	if err != nil {
 		panic(err)
 	}

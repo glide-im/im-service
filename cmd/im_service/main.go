@@ -5,12 +5,12 @@ import (
 	"github.com/glide-im/glide/pkg/bootstrap"
 	"github.com/glide-im/glide/pkg/logger"
 	"github.com/glide-im/glide/pkg/messaging/message_handler"
+	"github.com/glide-im/glide/pkg/rpc"
 	"github.com/glide-im/glide/pkg/store"
 	"github.com/glide-im/glide/pkg/subscription/subscription_impl"
 	"github.com/glide-im/im-service/internal/config"
 	"github.com/glide-im/im-service/internal/im_server"
 	"github.com/glide-im/im-service/internal/message_store_db"
-	"github.com/glide-im/im-service/internal/rpc"
 )
 
 func main() {

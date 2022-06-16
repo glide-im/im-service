@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/messages"
-	"github.com/glide-im/im-service/internal/rpc"
+	"github.com/glide-im/glide/pkg/rpc"
 	"github.com/glide-im/im-service/pkg/proto"
 )
 
