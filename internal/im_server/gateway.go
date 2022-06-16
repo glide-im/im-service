@@ -4,7 +4,7 @@ import (
 	"github.com/glide-im/glide/pkg/conn"
 	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/gate/gateway"
-	"log"
+	"github.com/glide-im/glide/pkg/logger"
 	"time"
 )
 
@@ -54,7 +54,7 @@ func (c *GatewayServer) HandleConnection(conn conn.Connection) gate.ID {
 	// 获取一个临时 uid 标识这个连接
 	id, err := gate.GenTempID(c.gateID)
 	if err != nil {
-		log.Println("[gateway] gen temp id error:", err)
+		logger.E("[gateway] gen temp id error: %v", err)
 		return ""
 	}
 	ret := gateway.NewClient(conn, c, c.h)
