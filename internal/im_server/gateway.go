@@ -45,6 +45,7 @@ func (c *GatewayServer) Run() error {
 
 func (c *GatewayServer) SetMessageHandler(h gate.MessageHandler) {
 	c.h = h
+	c.Impl.SetMessageHandler(h)
 }
 
 // HandleConnection 当一个用户连接建立后, 由该方法创建 Client 实例 Client 并管理该连接, 返回该由连接创建客户端的标识 id
@@ -57,7 +58,12 @@ func (c *GatewayServer) HandleConnection(conn conn.Connection) gate.ID {
 		logger.E("[gateway] gen temp id error: %v", err)
 		return ""
 	}
-	ret := gateway.NewClient(conn, c, c.h)
+	ret := gateway.NewClientWithConfig(conn, c, c.h, &gateway.ClientConfig{
+		HeartbeatLostLimit:      3,
+		ClientHeartbeatDuration: time.Second * 30,
+		ServerHeartbeatDuration: time.Second * 30,
+		CloseImmediately:        false,
+	})
 	ret.SetID(id)
 	c.Impl.AddClient(ret)
 

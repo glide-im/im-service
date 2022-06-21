@@ -66,7 +66,7 @@ func main() {
 		Addr:    config.IMService.Addr,
 		Port:    config.IMService.Port,
 	}
-	logger.D("rpc listening on %s:%d", rpcOpts.Addr, rpcOpts.Port)
+	logger.D("rpc %s listening on %s %s:%d", rpcOpts.Name, rpcOpts.Network, rpcOpts.Addr, rpcOpts.Port)
 	err = im_server.RunRpcServer(&rpcOpts, gateway)
 	if err != nil {
 		panic(err)

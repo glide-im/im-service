@@ -6,6 +6,7 @@ import (
 	"github.com/glide-im/glide/pkg/messages"
 	"github.com/glide-im/im-service/internal/config"
 	_ "github.com/go-sql-driver/mysql"
+	"strconv"
 	"time"
 )
 
@@ -31,18 +32,27 @@ func New(conf *config.MySqlConf) (*ChatMessageStore, error) {
 
 func (D *ChatMessageStore) StoreMessage(m *messages.ChatMessage) error {
 
-	lg := m.From
-	sm := m.To
+	from, err := strconv.ParseInt(m.From, 10, 64)
+	if err != nil {
+		return err
+	}
+	to, err := strconv.ParseInt(m.To, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	lg := from
+	sm := to
 	if lg < sm {
 		lg, sm = sm, lg
 	}
-	sid := lg + "_" + sm
+	sid := fmt.Sprintf("%d_%d", lg, sm)
 
 	// todo update the type of user id to string
 	//mysql only
-	_, err := D.db.Exec(
+	_, err = D.db.Exec(
 		"INSERT INTO im_chat_message (`m_id`, `session_id`, `from`, `to`, `type`, `content`, `send_at`, `create_at`, `cli_seq`, `status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)ON DUPLICATE KEY UPDATE send_at=?",
-		m.Mid, sid, m.From, m.To, m.Type, m.Content, m.SendAt, time.Now().Unix(), 0, 0,
+		m.Mid, sid, from, to, m.Type, m.Content, m.SendAt, time.Now().Unix(), 0, 0,
 		m.SendAt)
 	return err
 }
