@@ -8,9 +8,11 @@ import (
 	"github.com/glide-im/glide/pkg/rpc"
 	"github.com/glide-im/glide/pkg/store"
 	"github.com/glide-im/glide/pkg/subscription/subscription_impl"
+	"github.com/glide-im/im-service/internal/action_handler"
 	"github.com/glide-im/im-service/internal/config"
 	"github.com/glide-im/im-service/internal/im_server"
 	"github.com/glide-im/im-service/internal/message_store_db"
+	"github.com/glide-im/im-service/internal/offline_message"
 )
 
 func main() {
@@ -21,8 +23,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	auth := jwt_auth.NewAuthorizeImpl(config.WsServer.JwtSecret)
 
 	var cStore store.MessageStore = &message_store_db.IdleChatMessageStore{}
 	var sStore store.SubscriptionStore = &message_store_db.IdleSubscriptionStore{}
@@ -40,10 +40,20 @@ func main() {
 		logger.D("Common.StoreMessageHistory is false, message history will not be stored")
 	}
 
-	handler, err := message_handler.NewHandler(cStore, auth)
+	handler, err := message_handler.NewHandlerWithOptions(&message_handler.Options{
+		MessageStore:           cStore,
+		Auth:                   jwt_auth.NewAuthorizeImpl(config.WsServer.JwtSecret),
+		DontInitDefaultHandler: true,
+		NotifyOnErr:            true,
+	})
 	if err != nil {
 		panic(err)
 	}
+	if config.Common.StoreOfflineMessage {
+		handler.SetOfflineMessageHandler(offline_message.GetHandleFn())
+	}
+	action_handler.Setup(handler)
+	handler.InitDefaultHandler(nil)
 
 	options := bootstrap.Options{
 		Messaging:    handler,

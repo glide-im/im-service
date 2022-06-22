@@ -10,6 +10,7 @@ var (
 )
 
 type CommonConf struct {
+	StoreOfflineMessage bool
 	StoreMessageHistory bool
 }
 

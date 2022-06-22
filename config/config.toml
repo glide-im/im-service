@@ -1,5 +1,6 @@
 [CommonConf]
 StoreMessageHistory = false
+StoreOfflineMessage = false
 
 [WsServer]
 Addr = "0.0.0.0"
