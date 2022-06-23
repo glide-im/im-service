@@ -140,7 +140,6 @@ func (r *RpcServer) CreateChannel(ctx context.Context, request *proto.CreateChan
 		Muted:   cInfo.Muted,
 		Blocked: cInfo.Blocked,
 		Closed:  cInfo.Closed,
-		Parent:  subscription.ChanID(cInfo.Parent),
 	}
 	err := r.sub.CreateChannel(chanId, &info)
 	if err != nil {
@@ -159,7 +158,6 @@ func (r *RpcServer) UpdateChannel(ctx context.Context, request *proto.UpdateChan
 		Muted:   cInfo.Muted,
 		Blocked: cInfo.Blocked,
 		Closed:  cInfo.Closed,
-		Parent:  subscription.ChanID(cInfo.Parent),
 	}
 	err := r.sub.UpdateChannel(chanId, &info)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/gate/gateway"
 	"github.com/glide-im/glide/pkg/logger"
+	"github.com/glide-im/glide/pkg/messages"
 	"time"
 )
 
@@ -69,5 +70,14 @@ func (c *GatewayServer) HandleConnection(conn conn.Connection) gate.ID {
 
 	// 开始处理连接的消息
 	ret.Run()
+
+	hello := messages.ServerHello{
+		TempID:            string(id),
+		HeartbeatInterval: 30,
+	}
+
+	m := messages.NewMessage(0, messages.ActionHello, hello)
+	_ = ret.EnqueueMessage(m)
+
 	return id
 }
