@@ -55,10 +55,11 @@ func main() {
 	action_handler.Setup(handler)
 	handler.InitDefaultHandler(nil)
 
+	subscription := subscription_impl.NewSubscription(sStore, seqStore)
 	options := bootstrap.Options{
 		Messaging:    handler,
 		Gate:         gateway,
-		Subscription: subscription_impl.NewSubscription(sStore, seqStore),
+		Subscription: subscription,
 	}
 
 	go func() {
@@ -77,7 +78,7 @@ func main() {
 		Port:    config.IMService.Port,
 	}
 	logger.D("rpc %s listening on %s %s:%d", rpcOpts.Name, rpcOpts.Network, rpcOpts.Addr, rpcOpts.Port)
-	err = im_server.RunRpcServer(&rpcOpts, gateway)
+	err = im_server.RunRpcServer(&rpcOpts, gateway, subscription)
 	if err != nil {
 		panic(err)
 	}
