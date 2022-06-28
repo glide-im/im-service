@@ -23,7 +23,10 @@ type GatewayServer struct {
 func NewServer(id string, addr string, port int) (gate.Server, error) {
 	srv := GatewayServer{}
 	srv.Impl, _ = gateway.NewServer(
-		&gateway.Options{MaxMessageConcurrency: 30_0000},
+		&gateway.Options{
+			ID:                    id,
+			MaxMessageConcurrency: 30_0000,
+		},
 	)
 	srv.addr = addr
 	srv.port = port
@@ -72,7 +75,7 @@ func (c *GatewayServer) HandleConnection(conn conn.Connection) gate.ID {
 	ret.Run()
 
 	hello := messages.ServerHello{
-		TempID:            string(id),
+		TempID:            id.UID(),
 		HeartbeatInterval: 30,
 	}
 
