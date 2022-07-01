@@ -6,8 +6,23 @@ import (
 	"github.com/glide-im/glide/pkg/gate/gateway"
 	"github.com/glide-im/glide/pkg/logger"
 	"github.com/glide-im/glide/pkg/messages"
+	"sync/atomic"
 	"time"
 )
+
+type GatewayState struct {
+	ServerId             string    `json:"server_id"`
+	Addr                 string    `json:"addr"`
+	Port                 int       `json:"port"`
+	StartAt              time.Time `json:"start_at"`
+	RunningHours         float64   `json:"running_hours"`
+	ConnectedClientCount int32     `json:"connected_client_count"`
+	OnlineClients        int32     `json:"online_clients"`
+	OnlineTempClients    int32     `json:"online_temp_clients"`
+	DeliveredMessages    int32     `json:"delivered_messages"`
+	DeliverMessageFails  int32     `json:"deliver_message_fails"`
+	ReceivedMessages     int32     `json:"received_messages"`
+}
 
 type GatewayServer struct {
 	*gateway.Impl
@@ -18,9 +33,11 @@ type GatewayServer struct {
 	gateID string
 	addr   string
 	port   int
+
+	state *GatewayState
 }
 
-func NewServer(id string, addr string, port int) (gate.Server, error) {
+func NewServer(id string, addr string, port int) (*GatewayServer, error) {
 	srv := GatewayServer{}
 	srv.Impl, _ = gateway.NewServer(
 		&gateway.Options{
@@ -28,6 +45,11 @@ func NewServer(id string, addr string, port int) (gate.Server, error) {
 			MaxMessageConcurrency: 30_0000,
 		},
 	)
+	srv.state = &GatewayState{
+		ServerId: id,
+		Addr:     addr,
+		Port:     port,
+	}
 	srv.addr = addr
 	srv.port = port
 	srv.gateID = id
@@ -41,15 +63,23 @@ func NewServer(id string, addr string, port int) (gate.Server, error) {
 }
 
 func (c *GatewayServer) Run() error {
+
+	c.state.StartAt = time.Now()
+
 	c.server.SetConnHandler(func(conn conn.Connection) {
 		c.HandleConnection(conn)
+		atomic.AddInt32(&c.state.ConnectedClientCount, 1)
 	})
 	return c.server.Run(c.addr, c.port)
 }
 
 func (c *GatewayServer) SetMessageHandler(h gate.MessageHandler) {
-	c.h = h
-	c.Impl.SetMessageHandler(h)
+	handler := func(id *gate.Info, msg *messages.GlideMessage) {
+		atomic.AddInt32(&c.state.ReceivedMessages, 1)
+		h(id, msg)
+	}
+	c.h = handler
+	c.Impl.SetMessageHandler(handler)
 }
 
 // HandleConnection 当一个用户连接建立后, 由该方法创建 Client 实例 Client 并管理该连接, 返回该由连接创建客户端的标识 id
@@ -83,4 +113,29 @@ func (c *GatewayServer) HandleConnection(conn conn.Connection) gate.ID {
 	_ = ret.EnqueueMessage(m)
 
 	return id
+}
+
+func (c *GatewayServer) EnqueueMessage(id gate.ID, msg *messages.GlideMessage) error {
+	err := c.Impl.EnqueueMessage(id, msg)
+	if err != nil {
+		atomic.AddInt32(&c.state.DeliverMessageFails, 1)
+	} else {
+		atomic.AddInt32(&c.state.DeliveredMessages, 1)
+	}
+	return err
+}
+
+func (c *GatewayServer) GetState() GatewayState {
+	all := c.Impl.GetAll()
+	temp := 0
+	for id := range all {
+		if id.IsTemp() {
+			temp++
+		}
+	}
+	c.state.OnlineTempClients = int32(temp)
+	c.state.OnlineClients = int32(len(all))
+	span := time.Now().Unix() - c.state.StartAt.Unix()
+	c.state.RunningHours = float64(span) / 60.0 / 60.0
+	return *c.state
 }

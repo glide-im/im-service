@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/glide-im/glide/pkg/auth/jwt_auth"
 	"github.com/glide-im/glide/pkg/bootstrap"
 	"github.com/glide-im/glide/pkg/logger"
@@ -13,9 +14,22 @@ import (
 	"github.com/glide-im/im-service/internal/im_server"
 	"github.com/glide-im/im-service/internal/message_store_db"
 	"github.com/glide-im/im-service/internal/offline_message"
+	"github.com/glide-im/im-service/internal/server_state"
 )
 
+var state *string
+
+func init() {
+	state = flag.String("state", "", "show im server run state")
+	flag.Parse()
+}
+
 func main() {
+
+	if *state != "" {
+		server_state.ShowServerState("localhost:9091")
+		return
+	}
 
 	config.MustLoad()
 
@@ -69,6 +83,11 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+	}()
+
+	go func() {
+		logger.D("state server is listening on 0.0.0.0:%d", 9091)
+		server_state.StartSrv(9091, gateway)
 	}()
 
 	rpcOpts := rpc.ServerOptions{
