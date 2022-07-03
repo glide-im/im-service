@@ -100,13 +100,17 @@ func (s *SubscriptionRpcImpl) CreateChannel(ch subscription.ChanID, update *subs
 		children = append(children, string(child))
 	}
 
+	parent := ""
+	if update.Parent != nil {
+		parent = string(*update.Parent)
+	}
 	channelInfo := &proto.ChannelInfo{
 		ID:       string(update.ID),
 		Type:     int32(update.Type),
 		Muted:    update.Muted,
 		Blocked:  update.Blocked,
 		Closed:   update.Closed,
-		Parent:   string(update.Parent),
+		Parent:   parent,
 		Children: children,
 	}
 
@@ -127,14 +131,17 @@ func (s *SubscriptionRpcImpl) UpdateChannel(ch subscription.ChanID, update *subs
 	for _, child := range update.Child {
 		children = append(children, string(child))
 	}
-
+	parent := ""
+	if update.Parent != nil {
+		parent = string(*update.Parent)
+	}
 	channelInfo := &proto.ChannelInfo{
 		ID:       string(update.ID),
 		Type:     int32(update.Type),
 		Muted:    update.Muted,
 		Blocked:  update.Blocked,
 		Closed:   update.Closed,
-		Parent:   string(update.Parent),
+		Parent:   parent,
 		Children: children,
 	}
 
