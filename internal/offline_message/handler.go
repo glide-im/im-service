@@ -4,7 +4,7 @@ import (
 	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/logger"
 	"github.com/glide-im/glide/pkg/messages"
-	"github.com/glide-im/glide/pkg/messaging/message_handler"
+	"github.com/glide-im/im-service/internal/message_handler"
 	"github.com/glide-im/im-service/internal/pkg/db"
 	"time"
 )
