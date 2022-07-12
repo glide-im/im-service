@@ -69,7 +69,7 @@ func ShowServerState(addr string) {
 		return
 	}
 
-	var state im_server.GatewayState
+	var state im_server.GatewayMetrics
 	err = json.Unmarshal(bytes, &state)
 	if err != nil {
 		panic(err)
@@ -77,17 +77,23 @@ func ShowServerState(addr string) {
 	printBeautifulState(&state)
 }
 
-func printBeautifulState(state *im_server.GatewayState) {
+func printBeautifulState(state *im_server.GatewayMetrics) {
 	fmt.Printf("\nServerId:\t%s", state.ServerId)
 	fmt.Printf("\nAddr:\t\t%s", state.Addr)
 	fmt.Printf("\nPort:\t\t%d", state.Port)
 	fmt.Printf("\nStartAt:\t%s", state.StartAt.Format("2006-01-02 15:04:05"))
 	fmt.Printf("\nRunningHours:\t\t%.2f", state.RunningHours)
-	fmt.Printf("\nConnectedClientCount:\t%d", state.ConnectedClientCount)
-	fmt.Printf("\nOnlineClients:\t\t%d", state.OnlineClients)
-	fmt.Printf("\nOnlineTempClients:\t%d", state.OnlineTempClients)
-	fmt.Printf("\nDeliveredMessages:\t%d", state.DeliveredMessages)
-	fmt.Printf("\nDeliverMessageFails:\t%d", state.DeliverMessageFails)
-	fmt.Printf("\nReceivedMessages:\t%d", state.ReceivedMessages)
+
+	fmt.Println("== metric ==")
+	fmt.Printf("\nOnlineClients:\t\t%d", state.Conn.ConnectionCounter.Count())
+	fmt.Printf("\nOnlineTempClients:\t%d", state.Conn.OnlineTempCounter.Count())
+	fmt.Printf("\nTempConnAliveMaxSec:\t\t%d", state.Conn.AliveTempH.Max())
+	fmt.Printf("\nTempConnAliveMeanSec:\t\t%f", state.Conn.AliveTempH.Mean())
+	fmt.Printf("\nOnlineTempClients:\t%d", state.Conn.OnlineTempCounter.Count())
+	fmt.Printf("\nLoggedConnAliveMaxSec:\t\t%d", state.Conn.AliveLoggedH.Max())
+	fmt.Printf("\nLoggedConnAliveMeanSec:\t\t%f", state.Conn.AliveLoggedH.Mean())
+	fmt.Printf("\nOutMessages:\t%d", state.Message.OutCounter.Count())
+	fmt.Printf("\nOutMessageFails:\t%d", state.Message.FailsCounter.Count())
+	fmt.Printf("\nInMessages:\t%d", state.Message.InCounter.Count())
 	fmt.Printf("\n")
 }

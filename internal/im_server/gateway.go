@@ -6,22 +6,18 @@ import (
 	"github.com/glide-im/glide/pkg/gate/gateway"
 	"github.com/glide-im/glide/pkg/logger"
 	"github.com/glide-im/glide/pkg/messages"
-	"sync/atomic"
+	"github.com/rcrowley/go-metrics"
 	"time"
 )
 
-type GatewayState struct {
-	ServerId             string    `json:"server_id"`
-	Addr                 string    `json:"addr"`
-	Port                 int       `json:"port"`
-	StartAt              time.Time `json:"start_at"`
-	RunningHours         float64   `json:"running_hours"`
-	ConnectedClientCount int32     `json:"connected_client_count"`
-	OnlineClients        int32     `json:"online_clients"`
-	OnlineTempClients    int32     `json:"online_temp_clients"`
-	DeliveredMessages    int32     `json:"delivered_messages"`
-	DeliverMessageFails  int32     `json:"deliver_message_fails"`
-	ReceivedMessages     int32     `json:"received_messages"`
+type GatewayMetrics struct {
+	ServerId     string
+	Addr         string
+	Port         int
+	StartAt      time.Time
+	RunningHours float64
+	Message      *MessageMetrics
+	Conn         *ConnectionMetrics
 }
 
 type GatewayServer struct {
@@ -34,7 +30,7 @@ type GatewayServer struct {
 	addr   string
 	port   int
 
-	state *GatewayState
+	metrics *GatewayMetrics
 }
 
 func NewServer(id string, addr string, port int) (*GatewayServer, error) {
@@ -45,14 +41,21 @@ func NewServer(id string, addr string, port int) (*GatewayServer, error) {
 			MaxMessageConcurrency: 30_0000,
 		},
 	)
-	srv.state = &GatewayState{
+	srv.metrics = &GatewayMetrics{
 		ServerId: id,
 		Addr:     addr,
 		Port:     port,
+		Message:  NewMessageMetrics(),
+		Conn:     NewConnectionMetrics(),
 	}
 	srv.addr = addr
 	srv.port = port
 	srv.gateID = id
+
+	sample := metrics.NewExpDecaySample(1024, 0.015)
+	histogram := metrics.NewHistogram(sample)
+	_ = metrics.Register("s", histogram)
+	histogram.Update(1)
 
 	options := &conn.WsServerOptions{
 		ReadTimeout:  time.Minute * 3,
@@ -64,18 +67,18 @@ func NewServer(id string, addr string, port int) (*GatewayServer, error) {
 
 func (c *GatewayServer) Run() error {
 
-	c.state.StartAt = time.Now()
+	c.metrics.StartAt = time.Now()
 
 	c.server.SetConnHandler(func(conn conn.Connection) {
 		c.HandleConnection(conn)
-		atomic.AddInt32(&c.state.ConnectedClientCount, 1)
+		c.metrics.Conn.Connected()
 	})
 	return c.server.Run(c.addr, c.port)
 }
 
 func (c *GatewayServer) SetMessageHandler(h gate.MessageHandler) {
 	handler := func(id *gate.Info, msg *messages.GlideMessage) {
-		atomic.AddInt32(&c.state.ReceivedMessages, 1)
+		c.metrics.Message.In()
 		h(id, msg)
 	}
 	c.h = handler
@@ -118,14 +121,34 @@ func (c *GatewayServer) HandleConnection(conn conn.Connection) gate.ID {
 func (c *GatewayServer) EnqueueMessage(id gate.ID, msg *messages.GlideMessage) error {
 	err := c.Impl.EnqueueMessage(id, msg)
 	if err != nil {
-		atomic.AddInt32(&c.state.DeliverMessageFails, 1)
+		c.metrics.Message.Out()
 	} else {
-		atomic.AddInt32(&c.state.DeliveredMessages, 1)
+		c.metrics.Message.OutFailed()
 	}
 	return err
 }
 
-func (c *GatewayServer) GetState() GatewayState {
+func (c *GatewayServer) SetClientID(oldID, newID gate.ID) error {
+	err := c.Impl.SetClientID(oldID, newID)
+	if err == nil {
+		c.metrics.Conn.Login()
+	}
+	return err
+}
+
+func (c *GatewayServer) ExitClient(id gate.ID) error {
+	id.SetGateway(c.gateID)
+
+	client := c.Impl.GetClient(id)
+	if client != nil {
+		c.metrics.Conn.Exit(client.GetInfo())
+	}
+
+	err := c.Impl.ExitClient(id)
+	return err
+}
+
+func (c *GatewayServer) GetState() GatewayMetrics {
 	all := c.Impl.GetAll()
 	temp := 0
 	for id := range all {
@@ -133,9 +156,7 @@ func (c *GatewayServer) GetState() GatewayState {
 			temp++
 		}
 	}
-	c.state.OnlineTempClients = int32(temp)
-	c.state.OnlineClients = int32(len(all))
-	span := time.Now().Unix() - c.state.StartAt.Unix()
-	c.state.RunningHours = float64(span) / 60.0 / 60.0
-	return *c.state
+	span := time.Now().Unix() - c.metrics.StartAt.Unix()
+	c.metrics.RunningHours = float64(span) / 60.0 / 60.0
+	return *c.metrics
 }
