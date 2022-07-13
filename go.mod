@@ -3,9 +3,10 @@ module github.com/glide-im/im-service
 go 1.18
 
 require (
-	github.com/glide-im/glide v1.4.0
+	github.com/glide-im/glide v1.4.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
 	github.com/spf13/viper v1.11.0
 	github.com/stretchr/testify v1.7.1
 	google.golang.org/protobuf v1.28.0
@@ -80,7 +81,6 @@ require (
 	github.com/philhofer/fwd v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rpcxio/libkv v0.5.1-0.20210420120011-1fceaedca8a5 // indirect
 	github.com/rpcxio/rpcx-etcd v0.2.0 // indirect
 	github.com/rs/cors v1.8.2 // indirect

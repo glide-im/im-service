@@ -1,7 +1,6 @@
 package server_state
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/glide-im/glide/pkg/logger"
 	"github.com/glide-im/im-service/internal/im_server"
@@ -25,11 +24,12 @@ func (h *httpHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reques
 	if request.URL.Path == "/state" {
 		writer.WriteHeader(200)
 		state := h.g.GetState()
-		bytes, err2 := json.Marshal(&state)
-		if err2 != nil {
-			panic(err2)
-		}
-		_, err := writer.Write(bytes)
+		metricsLog := printBeautifulState(&state)
+		//bytes, err2 := json.Marshal(&state)
+		//if err2 != nil {
+		//	panic(err2)
+		//}
+		_, err := writer.Write([]byte(metricsLog))
 		if err != nil {
 			panic(err)
 		}
@@ -68,32 +68,25 @@ func ShowServerState(addr string) {
 		fmt.Println("get state failed, empty body")
 		return
 	}
-
-	var state im_server.GatewayMetrics
-	err = json.Unmarshal(bytes, &state)
-	if err != nil {
-		panic(err)
-	}
-	printBeautifulState(&state)
+	fmt.Println(string(bytes))
 }
 
-func printBeautifulState(state *im_server.GatewayMetrics) {
-	fmt.Printf("\nServerId:\t%s", state.ServerId)
-	fmt.Printf("\nAddr:\t\t%s", state.Addr)
-	fmt.Printf("\nPort:\t\t%d", state.Port)
-	fmt.Printf("\nStartAt:\t%s", state.StartAt.Format("2006-01-02 15:04:05"))
-	fmt.Printf("\nRunningHours:\t\t%.2f", state.RunningHours)
-
-	fmt.Println("== metric ==")
-	fmt.Printf("\nOnlineClients:\t\t%d", state.Conn.ConnectionCounter.Count())
-	fmt.Printf("\nOnlineTempClients:\t%d", state.Conn.OnlineTempCounter.Count())
-	fmt.Printf("\nTempConnAliveMaxSec:\t\t%d", state.Conn.AliveTempH.Max())
-	fmt.Printf("\nTempConnAliveMeanSec:\t\t%f", state.Conn.AliveTempH.Mean())
-	fmt.Printf("\nOnlineTempClients:\t%d", state.Conn.OnlineTempCounter.Count())
-	fmt.Printf("\nLoggedConnAliveMaxSec:\t\t%d", state.Conn.AliveLoggedH.Max())
-	fmt.Printf("\nLoggedConnAliveMeanSec:\t\t%f", state.Conn.AliveLoggedH.Mean())
-	fmt.Printf("\nOutMessages:\t%d", state.Message.OutCounter.Count())
-	fmt.Printf("\nOutMessageFails:\t%d", state.Message.FailsCounter.Count())
-	fmt.Printf("\nInMessages:\t%d", state.Message.InCounter.Count())
-	fmt.Printf("\n")
+func printBeautifulState(state *im_server.GatewayMetrics) string {
+	return fmt.Sprintf("\nServerId:\t%s", state.ServerId) +
+		fmt.Sprintf("\nAddr:\t\t%s", state.Addr) +
+		fmt.Sprintf("\nPort:\t\t%d", state.Port) +
+		fmt.Sprintf("\nStartAt:\t%s", state.StartAt.Format("2006-01-02 15:04:05")) +
+		fmt.Sprintf("\nRunningHours:\t\t%.2f", state.RunningHours) +
+		fmt.Sprintf("\n== metric ==") +
+		fmt.Sprintf("\nOnlineClients:\t\t%d", state.Conn.ConnectionCounter.Count()) +
+		fmt.Sprintf("\nOnlineTempClients:\t%d", state.Conn.OnlineTempCounter.Count()) +
+		fmt.Sprintf("\nTempConnAliveMaxSec:\t%d", state.Conn.AliveTempH.Max()) +
+		fmt.Sprintf("\nTempConnAliveMeanSec:\t%f", state.Conn.AliveTempH.Mean()) +
+		fmt.Sprintf("\nOnlineTempClients:\t%d", state.Conn.OnlineTempCounter.Count()) +
+		fmt.Sprintf("\nLoggedConnAliveMaxSec:\t%d", state.Conn.AliveLoggedH.Max()) +
+		fmt.Sprintf("\nLoggedConnAliveMeanSec:\t%f", state.Conn.AliveLoggedH.Mean()) +
+		fmt.Sprintf("\nOutMessages:\t\t%d", state.Message.OutCounter.Count()) +
+		fmt.Sprintf("\nOutMessageFails:\t%d", state.Message.FailsCounter.Count()) +
+		fmt.Sprintf("\nInMessages:\t\t%d", state.Message.InCounter.Count()) +
+		fmt.Sprintf("\n")
 }

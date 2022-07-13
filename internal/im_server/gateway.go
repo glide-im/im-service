@@ -149,13 +149,6 @@ func (c *GatewayServer) ExitClient(id gate.ID) error {
 }
 
 func (c *GatewayServer) GetState() GatewayMetrics {
-	all := c.Impl.GetAll()
-	temp := 0
-	for id := range all {
-		if id.IsTemp() {
-			temp++
-		}
-	}
 	span := time.Now().Unix() - c.metrics.StartAt.Unix()
 	c.metrics.RunningHours = float64(span) / 60.0 / 60.0
 	return *c.metrics
