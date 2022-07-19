@@ -7,6 +7,7 @@ import (
 
 const (
 	NotifyKickOut messages.Action = "notify.kickout"
+	AckOffline                    = "ack.offline"
 )
 
 func createKickOutMessage(c *gate.Info) *messages.GlideMessage {

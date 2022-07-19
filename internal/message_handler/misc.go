@@ -3,7 +3,6 @@ package message_handler
 import (
 	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/messages"
-	"github.com/glide-im/im-service/internal/offline_message"
 )
 
 func (d *MessageHandler) handleHeartbeat(cInfo *gate.Info, msg *messages.GlideMessage) error {
@@ -27,10 +26,6 @@ func (d *MessageHandler) handleAckOffline(c *gate.Info, msg *messages.GlideMessa
 	if c.ID.IsTemp() {
 		return nil
 	}
-	ackMsg := new(messages.AckRequest)
-	if !d.unmarshalData(c, msg, ackMsg) {
-		return nil
-	}
-	offline_message.AckOfflineMessage(c.ID.UID())
+	AckOfflineMessage(c.ID.UID())
 	return nil
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/glide-im/glide/pkg/logger"
 	"github.com/glide-im/glide/pkg/messages"
 	"github.com/glide-im/glide/pkg/messaging"
-	"github.com/glide-im/im-service/internal/offline_message"
+	"github.com/glide-im/im-service/internal/message_handler"
 )
 
 type InternalActionHandler struct {
@@ -24,7 +24,7 @@ func (o *InternalActionHandler) Handle(h *messaging.MessageInterfaceImpl, cliInf
 							logger.ErrE("push offline message error", err)
 						}
 					}()
-					offline_message.PushOfflineMessage(h, cliInfo.ID.UID())
+					message_handler.PushOfflineMessage(h, cliInfo.ID.UID())
 				}()
 			}
 		}

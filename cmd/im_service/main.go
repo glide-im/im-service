@@ -13,7 +13,6 @@ import (
 	"github.com/glide-im/im-service/internal/im_server"
 	"github.com/glide-im/im-service/internal/message_handler"
 	"github.com/glide-im/im-service/internal/message_store_db"
-	"github.com/glide-im/im-service/internal/offline_message"
 	"github.com/glide-im/im-service/internal/pkg/db"
 	"github.com/glide-im/im-service/internal/server_state"
 )
@@ -82,8 +81,8 @@ func main() {
 		panic(err)
 	}
 	if config.Common.StoreOfflineMessage {
-		offline_message.Enable = true
-		handler.SetOfflineMessageHandler(offline_message.GetHandleFn())
+		message_handler.Enable = true
+		handler.SetOfflineMessageHandler(message_handler.GetHandleFn())
 	}
 	action_handler.Setup(handler)
 	handler.InitDefaultHandler(nil)

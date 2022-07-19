@@ -1,11 +1,10 @@
-package offline_message
+package message_handler
 
 import (
 	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/logger"
 	"github.com/glide-im/glide/pkg/messages"
 	"github.com/glide-im/glide/pkg/messaging"
-	"github.com/glide-im/im-service/internal/message_handler"
 	"github.com/glide-im/im-service/internal/pkg/db"
 	"time"
 )
@@ -16,11 +15,11 @@ const (
 
 var Enable = false
 
-func GetHandleFn() func(h *message_handler.MessageHandler, ci *gate.Info, m *messages.GlideMessage) {
+func GetHandleFn() func(h *MessageHandler, ci *gate.Info, m *messages.GlideMessage) {
 	return handler
 }
 
-func handler(_ *message_handler.MessageHandler, _ *gate.Info, m *messages.GlideMessage) {
+func handler(_ *MessageHandler, _ *gate.Info, m *messages.GlideMessage) {
 	if !Enable {
 		return
 	}
@@ -65,6 +64,8 @@ func PushOfflineMessage(h *messaging.MessageInterfaceImpl, id string) {
 		id2 := gate.NewID2(id)
 		_ = h.GetClientInterface().EnqueueMessage(id2, msg)
 	}
+
+	// AckOfflineMessage(id)
 }
 
 func AckOfflineMessage(id string) {

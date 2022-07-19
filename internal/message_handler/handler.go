@@ -79,6 +79,7 @@ func (d MessageHandler) InitDefaultHandler(callback func(action messages.Action,
 		messages.ActionHeartbeat:    d.handleHeartbeat,
 		messages.ActionAckGroupMsg:  d.handleAckGroupMsgRequest,
 		messages.ActionApiAuth:      d.handleAuth,
+		AckOffline:                  d.handleAckOffline,
 	}
 	for action, handlerFunc := range m {
 		if callback != nil {
