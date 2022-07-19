@@ -22,3 +22,9 @@ Username = "root"
 Password = "root"
 Db = "im-service"
 Charset = "utf8mb4"
+
+[Redis]
+Host = ""
+Port = 6789
+Db = 8
+Password = ""

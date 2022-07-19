@@ -32,13 +32,14 @@ func New(conf *config.MySqlConf) (*ChatMessageStore, error) {
 
 func (D *ChatMessageStore) StoreMessage(m *messages.ChatMessage) error {
 
+	// TODO 2022-7-16 17:19:03 not a int
 	from, err := strconv.ParseInt(m.From, 10, 64)
 	if err != nil {
-		return err
+		return nil
 	}
 	to, err := strconv.ParseInt(m.To, 10, 64)
 	if err != nil {
-		return err
+		return nil
 	}
 
 	lg := from

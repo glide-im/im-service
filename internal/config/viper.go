@@ -7,6 +7,7 @@ var (
 	MySql     *MySqlConf
 	WsServer  *WsServerConf
 	IMService *IMRpcServerConf
+	Redis     *RedisConf
 )
 
 type CommonConf struct {
@@ -80,6 +81,7 @@ func MustLoad() {
 	WsServer = c.WsServer
 	IMService = c.IMRpcServer
 	Common = c.CommonConf
+	Redis = c.Redis
 
 	if Common == nil {
 		panic("CommonConf is nil")

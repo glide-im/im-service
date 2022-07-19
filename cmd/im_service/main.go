@@ -14,6 +14,7 @@ import (
 	"github.com/glide-im/im-service/internal/message_handler"
 	"github.com/glide-im/im-service/internal/message_store_db"
 	"github.com/glide-im/im-service/internal/offline_message"
+	"github.com/glide-im/im-service/internal/pkg/db"
 	"github.com/glide-im/im-service/internal/server_state"
 )
 
@@ -32,6 +33,23 @@ func main() {
 	}
 
 	config.MustLoad()
+
+	err := db.Init(&db.MySQLConfig{
+		Host:     config.MySql.Host,
+		Port:     config.MySql.Port,
+		User:     config.MySql.Username,
+		Password: config.MySql.Password,
+		Database: config.MySql.Db,
+		Charset:  config.MySql.Charset,
+	}, &db.RedisConfig{
+		Host:     config.Redis.Host,
+		Port:     config.Redis.Port,
+		Password: config.Redis.Password,
+		Db:       config.Redis.Db,
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	gateway, err := im_server.NewServer(config.WsServer.ID, config.WsServer.Addr, config.WsServer.Port)
 	if err != nil {
@@ -64,6 +82,7 @@ func main() {
 		panic(err)
 	}
 	if config.Common.StoreOfflineMessage {
+		offline_message.Enable = true
 		handler.SetOfflineMessageHandler(offline_message.GetHandleFn())
 	}
 	action_handler.Setup(handler)
