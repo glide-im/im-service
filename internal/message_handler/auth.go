@@ -18,7 +18,7 @@ func (d *MessageHandler) handleAuth(c *gate.Info, msg *messages.GlideMessage) er
 	t := auth.Token{}
 	e := msg.Data.Deserialize(&t)
 	if e != nil {
-		resp := messages.NewMessage(0, messages.ActionApiFailed, "invalid token")
+		resp := messages.NewMessage(0, ActionApiFailed, "invalid token")
 		d.enqueueMessage(c.ID, resp)
 		return nil
 	}
@@ -34,10 +34,10 @@ func (d *MessageHandler) handleAuth(c *gate.Info, msg *messages.GlideMessage) er
 	}
 
 	if r.Success {
-		respMsg := messages.NewMessage(msg.Seq, messages.ActionApiSuccess, r.Response)
+		respMsg := messages.NewMessage(msg.Seq, ActionApiSuccess, r.Response)
 		jwtResp, ok := r.Response.(*jwt_auth.Response)
 		if !ok {
-			resp := messages.NewMessage(msg.Seq, messages.ActionApiFailed, "internal error")
+			resp := messages.NewMessage(msg.Seq, ActionApiFailed, "internal error")
 			d.enqueueMessage(c.ID, resp)
 			return errors.New("invalid response type: expected *jwt_auth.Response")
 		}
@@ -67,7 +67,7 @@ func (d *MessageHandler) handleAuth(c *gate.Info, msg *messages.GlideMessage) er
 		logger.D("auth success: %s", newID)
 		d.enqueueMessage(newID, respMsg)
 	} else {
-		resp := messages.NewMessage(msg.Seq, messages.ActionApiFailed, r.Msg)
+		resp := messages.NewMessage(msg.Seq, ActionApiFailed, r.Msg)
 		d.enqueueMessage(c.ID, resp)
 	}
 	return nil

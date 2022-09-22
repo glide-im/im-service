@@ -15,7 +15,7 @@ func (d *MessageHandler) handleChatMessage(c *gate.Info, m *messages.GlideMessag
 	msg.From = m.From
 	msg.To = m.To
 
-	if m.GetAction() != messages.ActionChatMessageResend {
+	if m.GetAction() != ActionChatMessageResend {
 		err := d.store.StoreMessage(msg)
 		if err != nil {
 			logger.E("store chat message error %v", err)
@@ -25,14 +25,14 @@ func (d *MessageHandler) handleChatMessage(c *gate.Info, m *messages.GlideMessag
 
 	// sender resend message to receiver, server has already acked it
 	// does the server should not ack it again ?
-	if m.GetAction() != messages.ActionChatMessageResend {
+	if m.GetAction() != ActionChatMessageResend {
 		err := d.ackChatMessage(c, msg.Mid)
 		if err != nil {
 			logger.E("ack chat message error %v", err)
 		}
 	}
 
-	pushMsg := messages.NewMessage(0, messages.ActionChatMessage, msg)
+	pushMsg := messages.NewMessage(0, ActionChatMessage, msg)
 
 	if !d.dispatchAllDevice(msg.To, pushMsg) {
 		// receiver offline, send offline message, and ack message
@@ -51,7 +51,7 @@ func (d *MessageHandler) handleChatRecallMessage(c *gate.Info, msg *messages.Gli
 
 func (d *MessageHandler) ackNotifyMessage(c *gate.Info, mid int64) error {
 	ackNotify := messages.AckNotify{Mid: mid}
-	msg := messages.NewMessage(0, messages.ActionAckNotify, &ackNotify)
+	msg := messages.NewMessage(0, ActionAckNotify, &ackNotify)
 	return d.def.GetClientInterface().EnqueueMessage(c.ID, msg)
 }
 
@@ -60,7 +60,7 @@ func (d *MessageHandler) ackChatMessage(c *gate.Info, mid int64) error {
 		Mid: mid,
 		Seq: 0,
 	}
-	ack := messages.NewMessage(0, messages.ActionAckMessage, &ackMsg)
+	ack := messages.NewMessage(0, ActionAckMessage, &ackMsg)
 	return d.def.GetClientInterface().EnqueueMessage(c.ID, ack)
 }
 
@@ -77,7 +77,7 @@ func (d *MessageHandler) dispatchOffline(c *gate.Info, message *messages.GlideMe
 func (d *MessageHandler) dispatchOnline(c *gate.Info, msg *messages.ChatMessage) error {
 	receiverMsg := msg
 	msg.From = c.ID.UID()
-	dispatchMsg := messages.NewMessage(-1, messages.ActionChatMessage, receiverMsg)
+	dispatchMsg := messages.NewMessage(-1, ActionChatMessage, receiverMsg)
 	return d.def.GetClientInterface().EnqueueMessage(c.ID, dispatchMsg)
 }
 

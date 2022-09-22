@@ -73,13 +73,13 @@ func NewHandler(store store.MessageStore, auth auth.Interface) (*MessageHandler,
 // can be nil.
 func (d MessageHandler) InitDefaultHandler(callback func(action messages.Action, fn messaging.HandlerFunc) messaging.HandlerFunc) {
 	m := map[messages.Action]messaging.HandlerFunc{
-		messages.ActionChatMessage:  d.handleChatMessage,
-		messages.ActionGroupMessage: d.handleGroupMsg,
-		messages.ActionAckRequest:   d.handleAckRequest,
-		messages.ActionHeartbeat:    d.handleHeartbeat,
-		messages.ActionAckGroupMsg:  d.handleAckGroupMsgRequest,
-		messages.ActionApiAuth:      d.handleAuth,
-		AckOffline:                  d.handleAckOffline,
+		ActionChatMessage:  d.handleChatMessage,
+		ActionGroupMessage: d.handleGroupMsg,
+		ActionAckRequest:   d.handleAckRequest,
+		ActionAckGroupMsg:  d.handleAckGroupMsgRequest,
+		ActionApiAuth:      d.handleAuth,
+		AckOffline:         d.handleAckOffline,
+		ActionHeartbeat:    d.handleHeartbeat,
 	}
 	for action, handlerFunc := range m {
 		if callback != nil {

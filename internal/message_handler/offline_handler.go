@@ -23,7 +23,7 @@ func handler(_ *MessageHandler, _ *gate.Info, m *messages.GlideMessage) {
 	if !Enable {
 		return
 	}
-	if m.GetAction() == messages.ActionChatMessage || m.GetAction() == messages.ActionChatMessageResend {
+	if m.GetAction() == ActionChatMessage || m.GetAction() == ActionChatMessageResend {
 		c := messages.ChatMessage{}
 		err := m.Data.Deserialize(&c)
 		if err != nil {

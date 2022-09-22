@@ -15,7 +15,7 @@ func (d *MessageHandler) handleAckRequest(c *gate.Info, msg *messages.GlideMessa
 	if !d.unmarshalData(c, msg, ackMsg) {
 		return nil
 	}
-	ackNotify := messages.NewMessage(0, messages.ActionAckNotify, ackMsg)
+	ackNotify := messages.NewMessage(0, ActionAckNotify, ackMsg)
 
 	// 通知发送者, 对方已收到消息
 	d.dispatchAllDevice(ackMsg.From, ackNotify)
