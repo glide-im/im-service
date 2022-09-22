@@ -12,21 +12,20 @@ func (d *MessageHandler) handleChatMessage(c *gate.Info, m *messages.GlideMessag
 	if !d.unmarshalData(c, m, msg) {
 		return nil
 	}
-	msg.From = m.From
+	msg.From = c.ID.UID()
 	msg.To = m.To
 
-	if m.GetAction() != ActionChatMessageResend {
+	if msg.Mid == 0 {
+		// 当客户端发送一条 mid 为 0 的消息时表示这条消息未被服务端收到过, 或客户端未收到服务端的确认回执
 		err := d.store.StoreMessage(msg)
 		if err != nil {
 			logger.E("store chat message error %v", err)
 			return err
 		}
-	}
-
-	// sender resend message to receiver, server has already acked it
-	// does the server should not ack it again ?
-	if m.GetAction() != ActionChatMessageResend {
-		err := d.ackChatMessage(c, msg.Mid)
+	} else {
+		// sender resend message to receiver, server has already acked it
+		// does the server should not ack it again ?
+		err := d.ackChatMessage(c, msg)
 		if err != nil {
 			logger.E("ack chat message error %v", err)
 		}
@@ -36,7 +35,7 @@ func (d *MessageHandler) handleChatMessage(c *gate.Info, m *messages.GlideMessag
 
 	if !d.dispatchAllDevice(msg.To, pushMsg) {
 		// receiver offline, send offline message, and ack message
-		err := d.ackNotifyMessage(c, msg.Mid)
+		err := d.ackNotifyMessage(c, msg)
 		if err != nil {
 			logger.E("ack notify message error %v", err)
 		}
@@ -49,16 +48,17 @@ func (d *MessageHandler) handleChatRecallMessage(c *gate.Info, msg *messages.Gli
 	return d.handleChatMessage(c, msg)
 }
 
-func (d *MessageHandler) ackNotifyMessage(c *gate.Info, mid int64) error {
-	ackNotify := messages.AckNotify{Mid: mid}
+func (d *MessageHandler) ackNotifyMessage(c *gate.Info, m *messages.ChatMessage) error {
+	ackNotify := messages.AckNotify{Mid: m.Mid}
 	msg := messages.NewMessage(0, ActionAckNotify, &ackNotify)
 	return d.def.GetClientInterface().EnqueueMessage(c.ID, msg)
 }
 
-func (d *MessageHandler) ackChatMessage(c *gate.Info, mid int64) error {
+func (d *MessageHandler) ackChatMessage(c *gate.Info, msg *messages.ChatMessage) error {
 	ackMsg := messages.AckMessage{
-		Mid: mid,
-		Seq: 0,
+		CliMid: msg.CliMid,
+		Mid:    msg.Mid,
+		Seq:    0,
 	}
 	ack := messages.NewMessage(0, ActionAckMessage, &ackMsg)
 	return d.def.GetClientInterface().EnqueueMessage(c.ID, ack)

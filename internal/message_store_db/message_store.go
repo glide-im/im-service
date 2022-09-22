@@ -32,7 +32,6 @@ func New(conf *config.MySqlConf) (*ChatMessageStore, error) {
 
 func (D *ChatMessageStore) StoreMessage(m *messages.ChatMessage) error {
 
-	// TODO 2022-7-16 17:19:03 not a int
 	from, err := strconv.ParseInt(m.From, 10, 64)
 	if err != nil {
 		return nil
@@ -51,11 +50,14 @@ func (D *ChatMessageStore) StoreMessage(m *messages.ChatMessage) error {
 
 	// todo update the type of user id to string
 	//mysql only
-	_, err = D.db.Exec(
-		"INSERT INTO im_chat_message (`m_id`, `session_id`, `from`, `to`, `type`, `content`, `send_at`, `create_at`, `cli_seq`, `status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)ON DUPLICATE KEY UPDATE send_at=?",
-		m.Mid, sid, from, to, m.Type, m.Content, m.SendAt, time.Now().Unix(), 0, 0,
-		m.SendAt)
-	return err
+	s, e := D.db.Exec(
+		"INSERT INTO im_chat_message (`session_id`, `from`, `to`, `type`, `content`, `send_at`, `create_at`, `cli_seq`, `status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)ON DUPLICATE KEY UPDATE send_at=?",
+		sid, from, to, m.Type, m.Content, m.SendAt, time.Now().Unix(), 0, 0, m.SendAt)
+	if e != nil {
+		return e
+	}
+	m.Mid, _ = s.LastInsertId()
+	return nil
 }
 
 type IdleChatMessageStore struct {
