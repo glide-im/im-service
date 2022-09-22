@@ -22,13 +22,12 @@ func (d *MessageHandler) handleChatMessage(c *gate.Info, m *messages.GlideMessag
 			logger.E("store chat message error %v", err)
 			return err
 		}
-	} else {
-		// sender resend message to receiver, server has already acked it
-		// does the server should not ack it again ?
-		err := d.ackChatMessage(c, msg)
-		if err != nil {
-			logger.E("ack chat message error %v", err)
-		}
+	}
+	// sender resend message to receiver, server has already acked it
+	// does the server should not ack it again ?
+	err := d.ackChatMessage(c, msg)
+	if err != nil {
+		logger.E("ack chat message error %v", err)
 	}
 
 	pushMsg := messages.NewMessage(0, ActionChatMessage, msg)
