@@ -33,14 +33,7 @@ func main() {
 
 	config.MustLoad()
 
-	err := db.Init(&db.MySQLConfig{
-		Host:     config.MySql.Host,
-		Port:     config.MySql.Port,
-		User:     config.MySql.Username,
-		Password: config.MySql.Password,
-		Database: config.MySql.Db,
-		Charset:  config.MySql.Charset,
-	}, &db.RedisConfig{
+	err := db.Init(nil, &db.RedisConfig{
 		Host:     config.Redis.Host,
 		Port:     config.Redis.Port,
 		Password: config.Redis.Password,

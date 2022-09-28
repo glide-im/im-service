@@ -23,5 +23,20 @@ StoreMessageHistory.StoreOfflineMessage=true)则还需要 redis, 如果关闭离
 聊天服务不提供用户, 用户关系, 群等管理功能, 只处理消息转发和消息保存等和消息推送转发流程相关业务, 其他功能在 http 接口项目 `api` 中有具体的实现及演示.
 
 客户端鉴权, 管理等功能通过 HTTP API 实现, 后端 HTTP 服务再通过 `im_service` 提供的 RPC 接口进行踢人, 推送消息, 管理群等功能, 项目根目录下 `pkg` 包中列出了所有聊天服务提供的接口 及 rpc
-客户端实现, 外围管理服务直接依赖本项目, 再通过 pkg 中的 rpc 客户端即可对聊天服务管理. 
+客户端实现, 外围管理服务直接依赖本项目, 再通过 pkg 中的 rpc 客户端即可对聊天服务管理.
 
+## 运行
+
+> 2022年9月28日17:48:30
+
+- [配置文件](../config/config.toml)
+- [程序入口](../cmd/im_service/main.go)
+- [如何调用本服务提供的RPC接口](../example/client/rpc_client_example.go)
+
+## 测试一下发消息
+
+> 2022年9月28日17:37:46
+
+为了方便测试发消息等服务端的流程, 可以使用用 go 实现的一个简单客户端 [glide-cli](https://github.com/glide-im/glide_cli) 进行消息收发.
+`glide_cli` 中 `example` 目录中有一个简单的例子发消息, 使用时只需要将 jwt 的 secret 配置与 `im_service` 一致即可, uid 可以随意填, 这样就免去了麻烦 API 鉴权过程,
+只需要运行一个 `im_service` 即可进行消息收发的测试.
