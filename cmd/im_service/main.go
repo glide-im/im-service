@@ -15,6 +15,7 @@ import (
 	"github.com/glide-im/im-service/internal/message_store_db"
 	"github.com/glide-im/im-service/internal/pkg/db"
 	"github.com/glide-im/im-service/internal/server_state"
+	"github.com/glide-im/im-service/internal/world_channel"
 )
 
 var state *string
@@ -81,6 +82,7 @@ func main() {
 	handler.InitDefaultHandler(nil)
 
 	subscription := subscription_impl.NewSubscription(sStore, seqStore)
+	subscription.SetGateInterface(gateway)
 	options := bootstrap.Options{
 		Messaging:    handler,
 		Gate:         gateway,
@@ -100,6 +102,11 @@ func main() {
 		logger.D("state server is listening on 0.0.0.0:%d", 9091)
 		server_state.StartSrv(9091, gateway)
 	}()
+
+	err = world_channel.EnableWorldChannel(subscription_impl.NewSubscribeWrap(subscription))
+	if err != nil {
+		panic(err)
+	}
 
 	rpcOpts := rpc.ServerOptions{
 		Name:    config.IMService.Name,

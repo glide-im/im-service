@@ -64,5 +64,6 @@ type IdleChatMessageStore struct {
 }
 
 func (i *IdleChatMessageStore) StoreMessage(message *messages.ChatMessage) error {
+	message.Mid = time.Now().Unix()
 	return nil
 }
