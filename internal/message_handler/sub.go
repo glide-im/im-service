@@ -12,9 +12,17 @@ import (
 func (d *MessageHandler) handleGroupMsg(c *gate.Info, msg *messages.GlideMessage) error {
 
 	id := subscription.ChanID(msg.To)
+
+	cm := messages.ChatMessage{}
+	e := msg.Data.Deserialize(&cm)
+	if e != nil {
+		return e
+	}
+
 	m := subscription_impl.PublishMessage{
 		From:    subscription.SubscriberID(msg.From),
 		Message: msg,
+		Type:    subscription_impl.TypeMessage,
 	}
 	err := d.def.GetGroupInterface().PublishMessage(id, &m)
 
@@ -22,6 +30,8 @@ func (d *MessageHandler) handleGroupMsg(c *gate.Info, msg *messages.GlideMessage
 		logger.E("dispatch group message error: %v", err)
 		notify := messages.NewMessage(msg.GetSeq(), ActionMessageFailed, nil)
 		d.enqueueMessage(c.ID, notify)
+	} else {
+		_ = d.ackChatMessage(c, &cm)
 	}
 
 	return nil

@@ -30,7 +30,7 @@ func OnUserOnline(id gate.ID) {
 	if id.IsTemp() {
 		return
 	}
-	err := sub.Subscribe(chanId, subscription.SubscriberID(id),
+	err := sub.Subscribe(chanId, subscription.SubscriberID(id.UID()),
 		&subscription_impl.SubscriberOptions{Perm: subscription_impl.PermRead | subscription_impl.PermWrite})
 	if err == nil {
 
@@ -57,7 +57,7 @@ func OnUserOffline(id gate.ID) {
 	if id.IsTemp() {
 		return
 	}
-	_ = sub.UnSubscribe(chanId, subscription.SubscriberID(id))
+	_ = sub.UnSubscribe(chanId, subscription.SubscriberID(id.UID()))
 	b, _ := json.Marshal(&messages.ChatMessage{
 		Mid:     time.Now().UnixNano(),
 		Seq:     0,
