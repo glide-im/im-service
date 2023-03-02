@@ -1,7 +1,6 @@
-package message_handler
+package messages
 
 import (
-	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/messages"
 )
 
@@ -32,10 +31,8 @@ const (
 	ActionApiFailed  = "api.failed"
 	ActionApiSuccess = "api.success"
 
+	ActionClientCustom = "message.cli"
+
 	NotifyKickOut messages.Action = "notify.kickout"
 	AckOffline                    = "ack.offline"
 )
-
-func createKickOutMessage(c *gate.Info) *messages.GlideMessage {
-	return messages.NewMessage(0, NotifyKickOut, "")
-}

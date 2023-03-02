@@ -8,6 +8,7 @@ import (
 	"github.com/glide-im/glide/pkg/gate/gateway"
 	"github.com/glide-im/glide/pkg/logger"
 	"github.com/glide-im/glide/pkg/messages"
+	messages2 "github.com/glide-im/im-service/pkg/messages"
 )
 
 type AuthRequest struct {
@@ -18,7 +19,7 @@ func (d *MessageHandler) handleAuth(c *gate.Info, msg *messages.GlideMessage) er
 	t := auth.Token{}
 	e := msg.Data.Deserialize(&t)
 	if e != nil {
-		resp := messages.NewMessage(0, ActionApiFailed, "invalid token")
+		resp := messages.NewMessage(0, messages2.ActionApiFailed, "invalid token")
 		d.enqueueMessage(c.ID, resp)
 		return nil
 	}
@@ -34,10 +35,10 @@ func (d *MessageHandler) handleAuth(c *gate.Info, msg *messages.GlideMessage) er
 	}
 
 	if r.Success {
-		respMsg := messages.NewMessage(msg.Seq, ActionApiSuccess, r.Response)
+		respMsg := messages.NewMessage(msg.Seq, messages2.ActionApiSuccess, r.Response)
 		jwtResp, ok := r.Response.(*jwt_auth.Response)
 		if !ok {
-			resp := messages.NewMessage(msg.Seq, ActionApiFailed, "internal error")
+			resp := messages.NewMessage(msg.Seq, messages2.ActionApiFailed, "internal error")
 			d.enqueueMessage(c.ID, resp)
 			return errors.New("invalid response type: expected *jwt_auth.Response")
 		}
@@ -53,7 +54,7 @@ func (d *MessageHandler) handleAuth(c *gate.Info, msg *messages.GlideMessage) er
 			if err != nil {
 				return errors.New("failed to set temp id:" + err.Error())
 			}
-			d.enqueueMessage(tempId, createKickOutMessage(c))
+			d.enqueueMessage(tempId, messages2.CreateKickOutMessage(c))
 			err = d.def.GetClientInterface().SetClientID(c.ID, newID)
 			if err != nil {
 				return errors.New("failed to set new id:" + err.Error())
@@ -67,7 +68,7 @@ func (d *MessageHandler) handleAuth(c *gate.Info, msg *messages.GlideMessage) er
 		logger.D("auth success: %s", newID)
 		d.enqueueMessage(newID, respMsg)
 	} else {
-		resp := messages.NewMessage(msg.Seq, ActionApiFailed, r.Msg)
+		resp := messages.NewMessage(msg.Seq, messages2.ActionApiFailed, r.Msg)
 		d.enqueueMessage(c.ID, resp)
 	}
 	return nil

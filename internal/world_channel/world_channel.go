@@ -8,7 +8,7 @@ import (
 	"github.com/glide-im/glide/pkg/messages"
 	"github.com/glide-im/glide/pkg/subscription"
 	"github.com/glide-im/glide/pkg/subscription/subscription_impl"
-	"github.com/glide-im/im-service/internal/message_handler"
+	messages2 "github.com/glide-im/im-service/pkg/messages"
 	"time"
 )
 
@@ -49,7 +49,7 @@ func OnUserOnline(id gate.ID) {
 		_ = sub.Publish(chanId, &subscription_impl.PublishMessage{
 			From:    "system",
 			Type:    subscription_impl.TypeMessage,
-			Message: messages.NewMessage(0, message_handler.ActionGroupMessage, b),
+			Message: messages.NewMessage(0, messages2.ActionGroupMessage, b),
 		})
 
 		time.Sleep(time.Millisecond * 100)
@@ -61,7 +61,7 @@ func OnUserOnline(id gate.ID) {
 			From:    "system",
 			Type:    subscription_impl.TypeMessage,
 			To:      []subscription.SubscriberID{myId},
-			Message: messages.NewMessage(0, message_handler.ActionGroupMessage, b),
+			Message: messages.NewMessage(0, messages2.ActionGroupMessage, b),
 		})
 	} else {
 		logger.E("$v", err)
@@ -85,6 +85,6 @@ func OnUserOffline(id gate.ID) {
 	_ = sub.Publish(chanId, &subscription_impl.PublishMessage{
 		From:    "system",
 		Type:    subscription_impl.TypeMessage,
-		Message: messages.NewMessage(0, message_handler.ActionGroupMessage, b),
+		Message: messages.NewMessage(0, messages2.ActionGroupMessage, b),
 	})
 }

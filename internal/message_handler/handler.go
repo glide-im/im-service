@@ -8,6 +8,7 @@ import (
 	"github.com/glide-im/glide/pkg/messaging"
 	"github.com/glide-im/glide/pkg/store"
 	"github.com/glide-im/glide/pkg/subscription"
+	messages2 "github.com/glide-im/im-service/pkg/messages"
 )
 
 var _ messaging.Messaging = (*MessageHandler)(nil)
@@ -73,13 +74,13 @@ func NewHandler(store store.MessageStore, auth auth.Interface) (*MessageHandler,
 // can be nil.
 func (d MessageHandler) InitDefaultHandler(callback func(action messages.Action, fn messaging.HandlerFunc) messaging.HandlerFunc) {
 	m := map[messages.Action]messaging.HandlerFunc{
-		ActionChatMessage:  d.handleChatMessage,
-		ActionGroupMessage: d.handleGroupMsg,
-		ActionAckRequest:   d.handleAckRequest,
-		ActionAckGroupMsg:  d.handleAckGroupMsgRequest,
-		ActionApiAuth:      d.handleAuth,
-		AckOffline:         d.handleAckOffline,
-		ActionHeartbeat:    d.handleHeartbeat,
+		messages2.ActionChatMessage:  d.handleChatMessage,
+		messages2.ActionGroupMessage: d.handleGroupMsg,
+		messages2.ActionAckRequest:   d.handleAckRequest,
+		messages2.ActionAckGroupMsg:  d.handleAckGroupMsgRequest,
+		messages2.ActionApiAuth:      d.handleAuth,
+		messages2.AckOffline:         d.handleAckOffline,
+		messages2.ActionHeartbeat:    d.handleHeartbeat,
 	}
 	for action, handlerFunc := range m {
 		if callback != nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/glide-im/glide/pkg/messages"
 	"github.com/glide-im/glide/pkg/messaging"
 	"github.com/glide-im/im-service/internal/pkg/db"
+	messages2 "github.com/glide-im/im-service/pkg/messages"
 	"time"
 )
 
@@ -23,7 +24,7 @@ func handler(_ *MessageHandler, _ *gate.Info, m *messages.GlideMessage) {
 	if !Enable {
 		return
 	}
-	if m.GetAction() == ActionChatMessage || m.GetAction() == ActionChatMessageResend {
+	if m.GetAction() == messages2.ActionChatMessage || m.GetAction() == messages2.ActionChatMessageResend {
 		c := messages.ChatMessage{}
 		err := m.Data.Deserialize(&c)
 		if err != nil {

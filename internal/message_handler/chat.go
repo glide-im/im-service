@@ -4,6 +4,7 @@ import (
 	"github.com/glide-im/glide/pkg/gate"
 	"github.com/glide-im/glide/pkg/logger"
 	"github.com/glide-im/glide/pkg/messages"
+	messages2 "github.com/glide-im/im-service/pkg/messages"
 )
 
 // handleChatMessage 分发用户单聊消息
@@ -30,7 +31,7 @@ func (d *MessageHandler) handleChatMessage(c *gate.Info, m *messages.GlideMessag
 		logger.E("ack chat message error %v", err)
 	}
 
-	pushMsg := messages.NewMessage(0, ActionChatMessage, msg)
+	pushMsg := messages.NewMessage(0, messages2.ActionChatMessage, msg)
 
 	if !d.dispatchAllDevice(msg.To, pushMsg) {
 		// receiver offline, send offline message, and ack message
@@ -49,7 +50,7 @@ func (d *MessageHandler) handleChatRecallMessage(c *gate.Info, msg *messages.Gli
 
 func (d *MessageHandler) ackNotifyMessage(c *gate.Info, m *messages.ChatMessage) error {
 	ackNotify := messages.AckNotify{Mid: m.Mid}
-	msg := messages.NewMessage(0, ActionAckNotify, &ackNotify)
+	msg := messages.NewMessage(0, messages2.ActionAckNotify, &ackNotify)
 	return d.def.GetClientInterface().EnqueueMessage(c.ID, msg)
 }
 
@@ -59,7 +60,7 @@ func (d *MessageHandler) ackChatMessage(c *gate.Info, msg *messages.ChatMessage)
 		Mid:    msg.Mid,
 		Seq:    0,
 	}
-	ack := messages.NewMessage(0, ActionAckMessage, &ackMsg)
+	ack := messages.NewMessage(0, messages2.ActionAckMessage, &ackMsg)
 	return d.def.GetClientInterface().EnqueueMessage(c.ID, ack)
 }
 
@@ -76,7 +77,7 @@ func (d *MessageHandler) dispatchOffline(c *gate.Info, message *messages.GlideMe
 func (d *MessageHandler) dispatchOnline(c *gate.Info, msg *messages.ChatMessage) error {
 	receiverMsg := msg
 	msg.From = c.ID.UID()
-	dispatchMsg := messages.NewMessage(-1, ActionChatMessage, receiverMsg)
+	dispatchMsg := messages.NewMessage(-1, messages2.ActionChatMessage, receiverMsg)
 	return d.def.GetClientInterface().EnqueueMessage(c.ID, dispatchMsg)
 }
 

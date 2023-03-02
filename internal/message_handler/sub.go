@@ -6,6 +6,7 @@ import (
 	"github.com/glide-im/glide/pkg/messages"
 	"github.com/glide-im/glide/pkg/subscription"
 	"github.com/glide-im/glide/pkg/subscription/subscription_impl"
+	messages2 "github.com/glide-im/im-service/pkg/messages"
 )
 
 // handleGroupMsg 分发群消息
@@ -28,7 +29,7 @@ func (d *MessageHandler) handleGroupMsg(c *gate.Info, msg *messages.GlideMessage
 
 	if err != nil {
 		logger.E("dispatch group message error: %v", err)
-		notify := messages.NewMessage(msg.GetSeq(), ActionMessageFailed, nil)
+		notify := messages.NewMessage(msg.GetSeq(), messages2.ActionMessageFailed, nil)
 		d.enqueueMessage(c.ID, notify)
 	} else {
 		_ = d.ackChatMessage(c, &cm)
